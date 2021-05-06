@@ -6,7 +6,7 @@ import restaurant.view.TablePicker;
 public class EasyOrder {
   public static final int WIDTH = 400;
   public static final int HEIGHT = 250;
-  
+
 
   public EasyOrder() {
     final JFrame jFrame = new JFrame("");
