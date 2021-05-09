@@ -1,23 +1,21 @@
 package restaurant.view;
 
+import restaurant.data.Table;
+
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import java.sql.*;
+import javax.swing.*;
 
 public class TablePicker extends JPanel {
 
-  private JLabel labelUsername = new JLabel("Your name: ");
-  private JTextField textUsername = new JTextField(20);
-  private JPasswordField fieldPassword = new JPasswordField(20);
+  private DefaultComboBoxModel tableModel = new DefaultComboBoxModel<Table>();
+  private JLabel labelUsername = new JLabel("Your email ");
+  private JLabel labelTable = new JLabel("Your table ");
+  private JTextField textUsername = new JTextField(50);
+  private JComboBox tableCombo = new JComboBox();
   private JButton buttonLogin = new JButton("Next");
   private JButton buttonAdmin = new JButton();
   private JFrame parent;
@@ -36,8 +34,15 @@ public class TablePicker extends JPanel {
     constraints.gridx = 1;
     add(textUsername, constraints);
 
+    constraints.gridx = 0;
+    constraints.gridy = 1;
+    add(labelTable, constraints);
+
+
+    tableCombo.setModel(tableModel);
+    fillthetable();
     constraints.gridx = 1;
-    add(fieldPassword, constraints);
+    add(tableCombo, constraints);
 
     constraints.gridx = 0;
     constraints.gridy = 2;
@@ -54,7 +59,7 @@ public class TablePicker extends JPanel {
     add(buttonAdmin, constraints);
 
     setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(), "Please select your table"));
+        BorderFactory.createEtchedBorder(), "welcome"));
 
     initActions();
   }
@@ -70,5 +75,23 @@ public class TablePicker extends JPanel {
       parent.add(new AdminPage().setParent(parent));
       parent.repaint();
     });
+  }
+  private void fillthetable() {
+    String url = "jdbc:mysql://localhost:3306/zeynep";
+    String username = "root";
+    String password = "projeödevim";
+
+
+    try (Connection connection = DriverManager.getConnection(url, username, password);
+         PreparedStatement preparedStatement = connection
+                 .prepareStatement("select * from zeynep.table");
+         ResultSet resultSet = preparedStatement.executeQuery()) {
+      while (resultSet.next()) {
+        tableModel.addElement(new Table(resultSet.getInt("id"), resultSet.getInt("size"),
+                resultSet.getInt("table_no")));
+      }
+    } catch (SQLException e) {
+      System.out.println("not good" + e.getMessage());
+    }
   }
 }
