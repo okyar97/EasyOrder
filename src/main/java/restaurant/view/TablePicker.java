@@ -1,13 +1,22 @@
 package restaurant.view;
 
-import restaurant.data.Table;
-
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.sql.*;
-import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import restaurant.EasyOrder;
+import restaurant.data.Table;
 
 public class TablePicker extends JPanel {
 
@@ -18,10 +27,11 @@ public class TablePicker extends JPanel {
   private JComboBox tableCombo = new JComboBox();
   private JButton buttonLogin = new JButton("Next");
   private JButton buttonAdmin = new JButton();
-  private JFrame parent;
+  private EasyOrder parent;
 
-  public TablePicker() {
+  public TablePicker(EasyOrder parent) {
     super(new GridBagLayout());
+    this.parent = parent;
     GridBagConstraints constraints = new GridBagConstraints();
     constraints.anchor = GridBagConstraints.WEST;
     constraints.insets = new Insets(10, 10, 10, 10);
@@ -38,9 +48,8 @@ public class TablePicker extends JPanel {
     constraints.gridy = 1;
     add(labelTable, constraints);
 
-
     tableCombo.setModel(tableModel);
-    fillthetable();
+    tableModel.addAll(parent.allTable());
     constraints.gridx = 1;
     add(tableCombo, constraints);
 
@@ -52,46 +61,24 @@ public class TablePicker extends JPanel {
 
     constraints.gridx = 0;
     constraints.gridy = 5;
-    constraints.gridwidth = 1;
     constraints.anchor = GridBagConstraints.SOUTHWEST;
     buttonAdmin.setBackground(null);
     buttonAdmin.setIcon(new ImageIcon("src/main/resources/admin.png"));
     add(buttonAdmin, constraints);
 
-    setBorder(BorderFactory.createTitledBorder(
-        BorderFactory.createEtchedBorder(), "welcome"));
+    setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "welcome"));
 
     initActions();
   }
 
-  public Component setParent(JFrame parent) {
-    this.parent = parent;
-    return this;
-  }
-
   private void initActions() {
-    buttonAdmin.addActionListener(actionEvent -> {
-      parent.remove(this);
-      parent.add(new AdminPage().setParent(parent));
-      parent.repaint();
-    });
+    buttonAdmin.addActionListener(
+            actionEvent -> {
+              parent.getFrame().remove(this);
+              parent.getFrame().add(new AdminPage(parent));
+              parent.getFrame().revalidate();
+            });
   }
-  private void fillthetable() {
-    String url = "jdbc:mysql://localhost:3306/zeynep";
-    String username = "root";
-    String password = "projeödevim";
 
 
-    try (Connection connection = DriverManager.getConnection(url, username, password);
-         PreparedStatement preparedStatement = connection
-                 .prepareStatement("select * from zeynep.table");
-         ResultSet resultSet = preparedStatement.executeQuery()) {
-      while (resultSet.next()) {
-        tableModel.addElement(new Table(resultSet.getInt("id"), resultSet.getInt("size"),
-                resultSet.getInt("table_no")));
-      }
-    } catch (SQLException e) {
-      System.out.println("not good" + e.getMessage());
-    }
-  }
 }
