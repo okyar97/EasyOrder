@@ -1,88 +1,177 @@
 package restaurant.view;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import restaurant.EasyOrder;
 import restaurant.data.Table;
 
-public final class AdminPage extends Panel {
+public final class AdminPage extends JPanel {
 
-  private JFrame parent;
+  private EasyOrder parent;
   private JList list = new JList();
   private DefaultListModel model = new DefaultListModel<Table>();
-  private JButton nextButton = new JButton("Next");
-  private JLabel label = new JLabel();
-  private JPanel panel = new JPanel();
-  private JSplitPane splitPane = new JSplitPane();
+  private JButton saveButton = new JButton("Save");
+  private JButton addNewButton = new JButton("New");
+  private JButton deleteButton = new JButton("Delete");
+  private JLabel tableIdLabel = new JLabel("Table Id:");
+  private JTextField tableIdText = new JTextField();
+  private JLabel tableNoLabel = new JLabel("Table No:");
+  private JTextField tableNoText = new JTextField();
+  private JLabel tableSizeLabel = new JLabel("Size:");
+  private JTextField tableSizeText = new JTextField();
 
-  public AdminPage() {
+  public AdminPage(EasyOrder parent) {
     super(new GridBagLayout());
-
-    populateTables();
+    this.parent = parent;
     list.setModel(model);
-
-    list.getSelectionModel().addListSelectionListener(e -> {
-      Table p = (Table) list.getSelectedValue();
-      label.setText("Table No: " + p.getTableNo() + " size:" + p.getSize());
-    });
-
-    panel.add(label);
-
-    splitPane.setLeftComponent(new JScrollPane(list));
-    splitPane.setRightComponent(panel);
+    model.addAll(parent.allTable());
+    list.getSelectionModel()
+            .addListSelectionListener(
+                    e -> {
+                      if (!list.isSelectionEmpty()) {
+                        Table p = (Table) list.getSelectedValue();
+                        tableIdText.setText(p.getTableId() + "");
+                        tableNoText.setText(p.getTableNo() + "");
+                        tableSizeText.setText(p.getSize() + "");
+                      }
+                    });
 
     GridBagConstraints constraints = new GridBagConstraints();
     constraints.anchor = GridBagConstraints.WEST;
     constraints.insets = new Insets(10, 10, 10, 10);
 
+    constraints.ipadx = 25;
     constraints.gridx = 0;
     constraints.gridy = 0;
-    constraints.gridwidth = 10;
-    add(splitPane, constraints);
+    add(tableIdLabel, constraints);
+    constraints.gridx = 1;
+    constraints.gridy = 0;
+    add(tableIdText, constraints);
 
+    constraints.gridx = 0;
+    constraints.gridy = 1;
+    add(tableNoLabel, constraints);
     constraints.gridx = 1;
     constraints.gridy = 1;
-    add(nextButton, constraints);
+    add(tableNoText, constraints);
+
+    constraints.gridx = 0;
+    constraints.gridy = 2;
+    add(tableSizeLabel, constraints);
+    constraints.gridx = 1;
+    constraints.gridy = 2;
+    add(tableSizeText, constraints);
+
+    constraints.gridx = 0;
+    constraints.gridy = 9;
+    add(saveButton, constraints);
+    constraints.gridx = 1;
+    constraints.gridy = 9;
+    add(addNewButton, constraints);
+    constraints.gridx = 2;
+    constraints.gridy = 9;
+    add(deleteButton, constraints);
+
+    constraints.gridx = 0;
+    constraints.gridy = 10;
+    constraints.ipady = 150;
+    add(list, constraints);
+
     setSize(WIDTH, HEIGHT);
+    setBorder(
+            BorderFactory.createTitledBorder(
+                    BorderFactory.createEtchedBorder(), "Add / Update / Delete Table"));
+
+    addActions();
+    setVisible(true);
   }
 
-  private void populateTables() {
-    String url = "jdbc:mysql://localhost:3306/zeynep?serverTimezone=UTC";
-    String username = "root";
-    String password = "projeödevim";
-    list = new JList<Table>();
+  private void addActions() {
+    deleteButton.addActionListener(
+            new ActionListener() {
+              public void actionPerformed(ActionEvent evt) {
+                deleteTableFromDatabase((Table) list.getSelectedValue());
+                model.clear();
+                model.addAll(parent.allTable());
+              }
+            });
+    saveButton.addActionListener(
+            new ActionListener() {
+              public void actionPerformed(ActionEvent evt) {
+                int id = Integer.parseInt(tableIdText.getText());
+                int no = Integer.parseInt(tableNoText.getText());
+                int size = Integer.parseInt(tableSizeText.getText());
+                updateTable(id, no, size);
+                model.clear();
+                model.addAll(parent.allTable());
+              }
+            });
+    addNewButton.addActionListener(
+            new ActionListener() {
+              public void actionPerformed(ActionEvent evt) {
+                int no = Integer.parseInt(tableNoText.getText());
+                int size = Integer.parseInt(tableSizeText.getText());
+                addTable(new Table(0, size, no));
+                model.clear();
+                model.addAll(parent.allTable());
+              }
+            });
+  }
 
-    try (Connection connection = DriverManager.getConnection(url, username, password);
-        PreparedStatement preparedStatement = connection
-            .prepareStatement("select * from zeynep.table");
-        ResultSet resultSet = preparedStatement.executeQuery()) {
-      while (resultSet.next()) {
-        model.addElement(new Table(resultSet.getInt("id"), resultSet.getInt("size"),
-            resultSet.getInt("table_no")));
-      }
+  private void updateTable(int id, int no, int size) {
+
+    try (Connection connection = parent.databaseConnection();
+         PreparedStatement preparedStatement =
+                 connection.prepareStatement(
+                         "UPDATE zeynep.`table` SET table_no = "
+                                 + no
+                                 + ", size = "
+                                 + size
+                                 + " WHERE id ="
+                                 + id)) {
+      preparedStatement.executeUpdate();
     } catch (SQLException e) {
       System.out.println("not good" + e.getMessage());
     }
   }
 
-  public Component setParent(JFrame parent) {
-    this.parent = parent;
-    return this;
+  private void deleteTableFromDatabase(Table table) {
+    try (Connection connection = parent.databaseConnection();
+         PreparedStatement preparedStatement =
+                 connection.prepareStatement(
+                         "delete from zeynep.table where id = " + table.getTableId() + " ")) {
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      System.out.println("not good" + e.getMessage());
+    }
   }
 
+  private void addTable(Table newTable) {
+
+    try (Connection connection = parent.databaseConnection();
+         PreparedStatement preparedStatement =
+                 connection.prepareStatement(
+                         "INSERT INTO zeynep.`table` (table_no, size) VALUES ("
+                                 + newTable.getTableNo()
+                                 + ","
+                                 + newTable.getSize()
+                                 + " )")) {
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      System.out.println("not good" + e.getMessage());
+    }
+  }
 }
