@@ -4,13 +4,13 @@ public class Menuitem {
     private int id;
     private String name;
     private double price;
-    private int typeid;
+    private String type;
 
-    public Menuitem(int id, String name, double price, int typeid) {
+    public Menuitem(int id, String name, double price, String type) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.typeid = typeid;
+        this.type = type;
     }
 
     public int getId() {
@@ -37,11 +37,16 @@ public class Menuitem {
         this.price = price;
     }
 
-    public int getTypeid() {
-        return typeid;
+    public String getType() {
+        return type;
     }
 
-    public void setTypeid(int typeid) {
-        this.typeid = typeid;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return type + " - " + name + " - " + price + "TL.";
     }
 }
