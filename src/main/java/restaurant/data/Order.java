@@ -1,5 +1,7 @@
 package restaurant.data;
 
+import java.util.Date;
+
 public class Order {
     private int id;
     private int tableid;
