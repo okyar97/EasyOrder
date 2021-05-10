@@ -3,10 +3,6 @@ package restaurant.view;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -23,7 +19,7 @@ public class TablePicker extends JPanel {
   private DefaultComboBoxModel tableModel = new DefaultComboBoxModel<Table>();
   private JLabel labelUsername = new JLabel("Your email ");
   private JLabel labelTable = new JLabel("Your table ");
-  private JTextField textUsername = new JTextField(50);
+  private JTextField textUsername = new JTextField("zeynep");
   private JComboBox tableCombo = new JComboBox();
   private JButton buttonLogin = new JButton("Next");
   private JButton buttonAdmin = new JButton();
@@ -39,6 +35,7 @@ public class TablePicker extends JPanel {
     // add components to the panel
     constraints.gridx = 0;
     constraints.gridy = 0;
+    constraints.ipadx = 75;
     add(labelUsername, constraints);
 
     constraints.gridx = 1;
@@ -78,7 +75,15 @@ public class TablePicker extends JPanel {
               parent.getFrame().add(new AdminPage(parent));
               parent.getFrame().revalidate();
             });
+
+    buttonLogin.addActionListener(
+            actionEvent -> {
+              parent.setCustomer(textUsername.getText());
+              Table selectedItem = (Table) tableCombo.getSelectedItem();
+              parent.setCustomerTable(selectedItem);
+              parent.getFrame().remove(this);
+              parent.getFrame().add(new OrderSelection(parent));
+              parent.getFrame().revalidate();
+            });
   }
-
-
 }

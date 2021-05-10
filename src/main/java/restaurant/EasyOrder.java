@@ -15,6 +15,8 @@ public class EasyOrder {
   public static final int WIDTH = 600;
   public static final int HEIGHT = 600;
 
+  private String customerName = "";
+  private Table customerTable;
   final JFrame jFrame = new JFrame("EasyOrder");
 
   public EasyOrder() {
@@ -58,5 +60,21 @@ public class EasyOrder {
       System.out.println("hata! " + e.getMessage());
     }
     return tables;
+  }
+
+  public String getCustomer() {
+    return customerName;
+  }
+
+  public void setCustomer(String text) {
+    this.customerName = text;
+  }
+
+  public Table getCustomerTable() {
+    return customerTable;
+  }
+
+  public void setCustomerTable(Table customerTable) {
+    this.customerTable = customerTable;
   }
 }
