@@ -57,3 +57,9 @@ CREATE TABLE `orderdetail`
     `amount`     int NOT NULL
 )
 
+CREATE TABLE `menu_group`
+(
+    `id`        int         NOT NULL,
+    `groupname` varchar(25) NOT NULL,
+    PRIMARY KEY (`id`)
+)
