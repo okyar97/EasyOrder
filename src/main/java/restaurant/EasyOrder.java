@@ -36,7 +36,7 @@ public class EasyOrder {
 
   public Connection databaseConnection() throws SQLException {
 
-    String url = "jdbc:mysql://localhost:3306/zeynep?serverTimezone=UTC";
+    String url = "jdbc:mysql://localhost:3306";
     String username = "root";
     String password = "projeödevim";
 
@@ -47,7 +47,7 @@ public class EasyOrder {
     List<Table> tables = new ArrayList();
     try (Connection connection = databaseConnection();
          PreparedStatement preparedStatement =
-                 connection.prepareStatement("select * from zeynep.table");
+                 connection.prepareStatement("select * from `201735038`.table");
          ResultSet resultSet = preparedStatement.executeQuery()) {
       while (resultSet.next()) {
         tables.add(

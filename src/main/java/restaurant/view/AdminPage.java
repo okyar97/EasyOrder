@@ -136,7 +136,7 @@ public final class AdminPage extends JPanel {
     try (Connection connection = parent.databaseConnection();
          PreparedStatement preparedStatement =
                  connection.prepareStatement(
-                         "UPDATE zeynep.`table` SET table_no = "
+                         "UPDATE `201735038`.`table` SET table_no = "
                                  + no
                                  + ", size = "
                                  + size
@@ -152,7 +152,7 @@ public final class AdminPage extends JPanel {
     try (Connection connection = parent.databaseConnection();
          PreparedStatement preparedStatement =
                  connection.prepareStatement(
-                         "delete from zeynep.table where id = " + table.getTableId() + " ")) {
+                         "delete from `201735038`.table where id = " + table.getTableId() + " ")) {
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       System.out.println("not good" + e.getMessage());
@@ -164,7 +164,7 @@ public final class AdminPage extends JPanel {
     try (Connection connection = parent.databaseConnection();
          PreparedStatement preparedStatement =
                  connection.prepareStatement(
-                         "INSERT INTO zeynep.`table` (table_no, size) VALUES ("
+                         "INSERT INTO `201735038`.`table` (table_no, size) VALUES ("
                                  + newTable.getTableNo()
                                  + ","
                                  + newTable.getSize()
